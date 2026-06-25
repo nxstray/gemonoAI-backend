@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 // Stores conversations for unauthenticated guests identified by a UUID
 @Entity
@@ -18,8 +19,8 @@ import java.util.List;
 public class GuestConversation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     // Browser-generated UUID stored in localStorage
     @Column(name = "guest_id", nullable = false)
