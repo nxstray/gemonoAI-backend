@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class ConversationDTO {
 
@@ -15,7 +16,7 @@ public class ConversationDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Summary {
-        private Long id;
+        private UUID id;
         private String title;
         private LocalDateTime updatedAt;
     }
@@ -25,7 +26,7 @@ public class ConversationDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Detail {
-        private Long id;
+        private UUID id;
         private String title;
         private List<MessageDTO.Response> messages;
         private LocalDateTime createdAt;

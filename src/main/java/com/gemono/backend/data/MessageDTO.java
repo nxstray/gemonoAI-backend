@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class MessageDTO {
 
@@ -13,7 +14,7 @@ public class MessageDTO {
         @NotBlank
         private String content;
         // Optional: conversation ID (null = start new conversation)
-        private Long conversationId;
+        private UUID conversationId;
     }
 
     @Data
@@ -21,7 +22,7 @@ public class MessageDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response {
-        private Long id;
+        private UUID id;
         private String role;
         private String content;
         private String attachmentUrl;
