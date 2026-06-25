@@ -4,8 +4,8 @@ import com.gemono.backend.model.GuestConversation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-
-public interface GuestConversationRepository extends JpaRepository<GuestConversation, Long> {
+import java.util.UUID;
+public interface GuestConversationRepository extends JpaRepository<GuestConversation, UUID> {
     List<GuestConversation> findByGuestIdAndMergedToUserIsNullOrderByUpdatedAtDesc(String guestId);
     List<GuestConversation> findByGuestIdAndMergedToUserIsNull(String guestId);
 }
