@@ -6,24 +6,19 @@ import jakarta.validation.constraints.NotBlank;
 
 public class AuthDTO {
 
+    // Request to send a magic link — only email needed, no password
     @Data
-    public static class RegisterRequest {
-        @Email
-        @NotBlank
+    public static class MagicLinkRequest {
+        @Email(message = "Must be a valid email address")
+        @NotBlank(message = "Email is required")
         private String email;
-        @NotBlank
-        private String fullName;
-        @NotBlank
-        private String password;
     }
 
+    // Request to verify the magic link token from the email URL
     @Data
-    public static class LoginRequest {
-        @Email
-        @NotBlank
-        private String email;
-        @NotBlank
-        private String password;
+    public static class VerifyTokenRequest {
+        @NotBlank(message = "Token is required")
+        private String token;
     }
 
     @Data
