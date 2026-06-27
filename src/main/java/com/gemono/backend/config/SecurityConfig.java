@@ -21,7 +21,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-// All role-based access control and security configuration lives here
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -39,25 +38,40 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            // OAuth2 needs session briefly for the callback — use IF_REQUIRED
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .requestCache(cache -> cache.disable())
             .authorizeHttpRequests(auth -> auth
-                // Public — no token required
+                // swagger & openapi
+                .requestMatchers(
+                    "/v3/api-docs",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs.yaml",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
+
+                // actuator
+                .requestMatchers("/actuator/health").permitAll()
+
+                // static uploads
+                .requestMatchers("/uploads/**").permitAll()
+
+                // public auth & guest
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/guest/**").permitAll()
                 .requestMatchers("/api/health/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/uploads/**").permitAll()
-                // OAuth2 redirect endpoints must be fully public
+
+                // oauth2
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+
+                // preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // Admin-only
+                // admin only
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                // All other endpoints require JWT
+                // everything else requires jwt
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
@@ -75,7 +89,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Multiple origins: local + Vercel + HF Spaces (comma-separated in properties)
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
