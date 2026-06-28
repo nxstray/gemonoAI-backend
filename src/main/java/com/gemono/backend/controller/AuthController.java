@@ -44,4 +44,13 @@ public class AuthController {
             @AuthenticationPrincipal String email) {
         return ResponseEntity.ok(ApiResponse.ok(authService.getProfile(email)));
     }
+
+    @PutMapping("/profile")
+    @Operation(summary = "Update display name, full name, and language")
+    public ResponseEntity<ApiResponse<AuthDTO.AuthResponse>> updateProfile(
+            @AuthenticationPrincipal String email,
+            @Valid @RequestBody AuthDTO.UpdateProfileRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Profile updated",
+                authService.updateProfile(email, request)));
+    }
 }
