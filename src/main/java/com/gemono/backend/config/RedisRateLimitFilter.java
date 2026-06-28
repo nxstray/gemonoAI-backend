@@ -3,6 +3,7 @@ package com.gemono.backend.config;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import java.time.Duration;
 
 // Redis-based rate limiter — persists across restarts, works in multi-instance deploy
 // Uses sliding window counter: key = "rl:{ip}", TTL = window seconds
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RedisRateLimitFilter implements Filter {
@@ -60,7 +62,7 @@ public class RedisRateLimitFilter implements Filter {
             } catch (Exception e) {
                 // If Redis is down, fail open — do not block the request
                 // Log the issue but allow traffic to continue
-                System.err.println("[RateLimit] Redis error, failing open: " + e.getMessage());
+                log.warn("[RateLimit] Redis unavailable, failing open: {}", e.getMessage());
             }
         }
 
