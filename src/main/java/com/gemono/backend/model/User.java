@@ -25,6 +25,12 @@ public class User {
     @Column(name = "full_name")
     private String fullName;
 
+    @Column(name = "display_name")
+    private String displayName;
+
+    @Column(name = "language", length = 10)
+    private String language;
+
     @Column(name = "avatar_url")
     private String avatarUrl;
 
