@@ -22,7 +22,6 @@ public class GroqService {
             @Value("${groq.model}") String model) {
         this.groqApiKey = groqApiKey;
         this.model = model;
-        // Build WebClient with baseUrl so @Value properties are fully resolved first
         this.webClient = WebClient.builder()
                 .baseUrl(groqApiUrl)
                 .build();
@@ -43,11 +42,15 @@ public class GroqService {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()
-                // Log 4xx errors from Groq for easier debugging
                 .onStatus(status -> status.is4xxClientError(), clientResponse ->
                         clientResponse.bodyToMono(String.class)
                                 .map(errorBody -> {
                                     System.err.println("Groq 4xx error: " + errorBody);
+                                    // Detect rate limit — throw RateLimitException agar return 429 ke frontend
+                                    if (errorBody.contains("rate_limit_exceeded")
+                                            || errorBody.contains("Rate limit reached")) {
+                                        return new RateLimitException("AI rate limit reached. Please wait a moment and try again.");
+                                    }
                                     return new RuntimeException("Groq API error: " + errorBody);
                                 })
                 )
@@ -68,5 +71,12 @@ public class GroqService {
                 Map.of("role", "user", "content", userMessage)
         );
         return chat(messages);
+    }
+
+    // Custom exception untuk rate limit — ditangkap di GlobalExceptionHandler → return 429
+    public static class RateLimitException extends RuntimeException {
+        public RateLimitException(String message) {
+            super(message);
+        }
     }
 }
