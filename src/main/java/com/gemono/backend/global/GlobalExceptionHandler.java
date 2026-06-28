@@ -1,5 +1,6 @@
 package com.gemono.backend.global;
 
+import com.gemono.backend.service.GroqService;
 import com.gemono.backend.data.ApiResponse;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,6 +11,13 @@ import java.util.stream.Collectors;
 // Centralized error handling — returns ApiResponse format for all exceptions
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    // Groq rate limit — return 429 agar frontend bisa tampilkan toast warning
+    @ExceptionHandler(GroqService.RateLimitException.class)
+    public ResponseEntity<ApiResponse<Void>> handleGroqRateLimit(GroqService.RateLimitException e) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(IllegalArgumentException e) {
