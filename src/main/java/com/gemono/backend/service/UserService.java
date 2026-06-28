@@ -15,6 +15,24 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // Auto-create user on first magic link login — no password required
+    public User findOrCreateEmailUser(String email) {
+        return userRepository.findByEmail(email).orElseGet(() -> {
+            // Derive display name from email prefix
+            String name = email.split("@")[0].replace(".", " ");
+            name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+
+            User newUser = User.builder()
+                    .email(email)
+                    .fullName(name)
+                    .role(User.Role.USER)
+                    .provider("email")
+                    .build();
+
+            return userRepository.save(newUser);
+        });
+    }
+
     // Find existing OAuth user or create new one
     public User findOrCreateOAuthUser(String email, String name, String picture,
                                        String provider, String providerId) {
