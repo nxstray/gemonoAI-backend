@@ -1,6 +1,7 @@
 package com.gemono.backend.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,7 +11,8 @@ import java.util.Map;
 
 // Handles communication with Groq LLM API
 @Service
-public class GroqService {
+@Profile({"!test", "prod-test"}) // Exclude from test profile to avoid real API calls during testing
+public class GroqService implements ChatLlmService {
 
     private final WebClient webClient;
     private final String groqApiKey;
