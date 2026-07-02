@@ -1,12 +1,13 @@
 package com.gemono.backend.service;
 
-import com.gemono.backend.data.MessageDTO;
 import com.gemono.backend.data.*;
 import com.gemono.backend.model.*;
 import com.gemono.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -154,9 +155,14 @@ public class GuestService {
     }
 
     public void deleteConversation(String guestId, UUID conversationId) {
+        // Change RuntimeException to ResponseStatusException to return 404 instead of 500
         GuestConversation conv = guestConvRepo.findById(conversationId)
-                .orElseThrow(() -> new RuntimeException("Not found"));
-        if (!conv.getGuestId().equals(guestId)) throw new RuntimeException("Access denied");
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation not found"));
+        
+        if (!conv.getGuestId().equals(guestId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+        
         guestConvRepo.delete(conv);
     }
 
