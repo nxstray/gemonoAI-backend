@@ -6,12 +6,14 @@ import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.CreateEmailResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-// Sends transactional emails via Resend API
 @Slf4j
 @Service
-public class ResendEmailService {
+// This bean will only load if resend.mock.enabled is false or missing
+@ConditionalOnProperty(name = "resend.mock.enabled", havingValue = "false", matchIfMissing = true)
+public class ResendEmailService implements EmailService {
 
     @Value("${resend.api.key}")
     private String apiKey;
@@ -22,7 +24,7 @@ public class ResendEmailService {
     @Value("${resend.from.name}")
     private String fromName;
 
-    // Send a magic link email to the user
+    @Override
     public void sendMagicLink(String toEmail, String magicUrl, int expiryMinutes) {
         Resend resend = new Resend(apiKey);
 
@@ -44,7 +46,6 @@ public class ResendEmailService {
         }
     }
 
-    // Clean, minimal HTML email template — monochrome consistent with app design
     private String buildMagicLinkHtml(String email, String url, int expiryMinutes) {
         return """
             <!DOCTYPE html>
@@ -53,7 +54,7 @@ public class ResendEmailService {
               <meta charset="UTF-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             </head>
-            <body style="margin:0;padding:0;background:#0c0c0c;font-family:'Georgia',serif;">
+            <body style="margin:0;padding:0;background:#0c0c0c;font-family:'Yantramanav', sans-serif;">
               <table width="100%%" cellpadding="0" cellspacing="0" style="background:#0c0c0c;padding:40px 0;">
                 <tr>
                   <td align="center">
@@ -61,7 +62,7 @@ public class ResendEmailService {
                            style="background:#141414;border:1px solid #242424;border-radius:12px;padding:40px 36px;">
                       <tr>
                         <td style="text-align:center;padding-bottom:28px;">
-                          <span style="font-family:sans-serif;font-size:18px;letter-spacing:0.12em;color:#f5f5f5;font-weight:400;">
+                          <span style="font-family:'Doto', monospace;font-size:18px;letter-spacing:0.12em;color:#f5f5f5;font-weight:400;">
                             GEMONO
                           </span>
                         </td>
@@ -82,18 +83,11 @@ public class ResendEmailService {
                         <td style="text-align:center;padding:8px 0 28px;">
                           <a href="%s"
                              style="display:inline-block;background:#f5f5f5;color:#0c0c0c;
-                                    text-decoration:none;font-family:sans-serif;font-size:14px;
+                                    text-decoration:none;font-family:'Yantramanav', sans-serif;font-size:14px;
                                     font-weight:500;padding:12px 32px;border-radius:6px;
                                     letter-spacing:0.02em;">
                             Sign in to Gemono
                           </a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="border-top:1px solid #242424;padding-top:20px;">
-                          <p style="margin:0;font-size:11px;color:#6b6b6b;word-break:break-all;">
-                            Or copy this link: %s
-                          </p>
                         </td>
                       </tr>
                     </table>
