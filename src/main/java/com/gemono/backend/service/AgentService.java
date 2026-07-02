@@ -18,7 +18,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AgentService {
 
-    private final GroqService groqService;
+    private final ChatLlmService chatLlmService;
     private final TavilyService tavilyService;
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
@@ -67,7 +67,7 @@ public class AgentService {
         messages.add(Map.of("role", "user", "content", userMessage));
 
         // Step 1: Ask LLM what to do
-        String firstResponse = groqService.chat(messages);
+        String firstResponse = chatLlmService.chat(messages);
         steps.add(AgentStepDTO.builder()
                 .type("thinking")
                 .description("Analyzing your request...")
@@ -97,7 +97,7 @@ public class AgentService {
             messages.add(Map.of("role", "user", "content",
                     "Search results:\n\n" + searchResults + "\n\nNow please provide your final answer."));
 
-            String finalAnswer = groqService.chat(messages);
+            String finalAnswer = chatLlmService.chat(messages);
 
             steps.add(AgentStepDTO.builder()
                     .type("answer")
