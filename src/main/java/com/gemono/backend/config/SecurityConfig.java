@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -53,7 +54,7 @@ public class SecurityConfig {
                     .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
             )
             .authorizeHttpRequests(auth -> auth
-                // swagger & openapi
+                // Swagger & OpenAPI documentation endpoints
                 .requestMatchers(
                     "/v3/api-docs",
                     "/v3/api-docs/**",
@@ -62,28 +63,39 @@ public class SecurityConfig {
                     "/swagger-ui.html"
                 ).permitAll()
 
-                // actuator
+                // Spring Boot Actuator endpoints
                 .requestMatchers("/actuator/health").permitAll()
 
-                // static uploads
+                // Static resource uploads
                 .requestMatchers("/uploads/**").permitAll()
 
-                // public auth & guest
+                // Protected user endpoints that strictly require a valid JWT token
+                .requestMatchers("/api/auth/me", "/api/auth/profile").authenticated()
+
+                // Publicly accessible authentication and guest endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/guest/**").permitAll()
                 .requestMatchers("/api/health/**").permitAll()
 
-                // oauth2
+                // OAuth2 redirection and login endpoints
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
-                // preflight
+                // CORS preflight options request matching
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // admin only
+                // Admin dashboard restrictions
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                // everything else requires jwt
+                // Catch-all requirement for any other unspecified resource
                 .anyRequest().authenticated()
+            )
+            // Handle unauthenticated REST API requests by returning 401 instead of a 302 login redirect
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"success\": false, \"error\": \"Unauthorized: Missing or invalid token\"}");
+                })
             )
             .oauth2Login(oauth2 -> oauth2
                 .authorizationEndpoint(endpoint ->
@@ -92,6 +104,7 @@ public class SecurityConfig {
                     endpoint.baseUri("/login/oauth2/code/*"))
                 .successHandler(oAuth2SuccessHandler)
             )
+            // Evaluate custom JWT Token filter validation prior to standard Username/Password verification
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
