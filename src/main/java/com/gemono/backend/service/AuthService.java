@@ -22,7 +22,7 @@ public class AuthService {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final GuestService guestService;
-    private final ResendEmailService resendEmailService;
+    private final EmailService resendEmailService;
     private final MagicLinkTokenRepository magicLinkTokenRepository;
     private final UserRepository userRepository;
 
