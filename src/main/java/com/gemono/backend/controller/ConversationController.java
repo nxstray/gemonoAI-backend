@@ -46,7 +46,7 @@ public class ConversationController {
             @RequestParam String content,
             @RequestParam(required = false) UUID conversationId,
             @RequestParam(required = false) MultipartFile file) throws Exception {
-
+                
         String attachmentUrl = null;
         String attachmentType = null;
 
