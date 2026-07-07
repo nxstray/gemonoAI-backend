@@ -27,6 +27,7 @@ public class MessageDTO {
         private String content;
         private String attachmentUrl;
         private String attachmentType;
+        private List<AttachmentDTO> attachments;
         private List<AgentStepDTO> agentSteps;
         private LocalDateTime createdAt;
     }
