@@ -35,6 +35,11 @@ public class GuestMessage {
     @Column(name = "attachment_type")
     private String attachmentType;
 
+    // Same multi-attachment JSON column as Message — kept in sync so mergeGuestHistory()
+    // can copy it over as-is when a guest conversation is merged into a real account
+    @Column(name = "attachments", columnDefinition = "TEXT")
+    private String attachments;
+
     @Column(name = "agent_steps", columnDefinition = "TEXT")
     private String agentSteps;
 
