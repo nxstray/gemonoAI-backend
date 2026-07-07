@@ -44,7 +44,7 @@ class MagicLinkFunctionalTest {
         ReflectionTestUtils.setField(authService, "baseUrl", "http://localhost:5173");
     }
 
-    // ── TC-FUNC-01 ────────────────────────────────────────────────────
+    // TC-FUNC-01
 
     @Test
     @Story("Token Lifecycle")
@@ -59,7 +59,7 @@ class MagicLinkFunctionalTest {
         order.verify(tokenRepo).save(any(MagicLinkToken.class));
     }
 
-    // ── TC-FUNC-02 ────────────────────────────────────────────────────
+    // TC-FUNC-02
 
     @Test
     @Story("Token Lifecycle")
@@ -85,7 +85,7 @@ class MagicLinkFunctionalTest {
         assertThat(tokenPart).matches("[0-9a-f-]{36}");
     }
 
-    // ── TC-FUNC-03 ────────────────────────────────────────────────────
+    // TC-FUNC-03
 
     @Test
     @Story("Token Lifecycle")

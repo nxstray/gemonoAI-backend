@@ -15,7 +15,7 @@ import static io.restassured.RestAssured.given;
 // Shared step definitions used across all feature files
 public class CommonSteps {
 
-    static int port = 8020;
+    static String baseUrl = System.getProperty("test.backend.url", "http://localhost:8020");
     static String authToken = null;
     static String guestId = null;
     static Response lastResponse = null;
@@ -25,13 +25,16 @@ public class CommonSteps {
 
     @Before
     void setup() {
-        RestAssured.baseURI = "http://localhost:" + port;
+        RestAssured.baseURI = baseUrl;
     }
 
     @Given("the backend is running on port {int}")
     public void theBackendIsRunning(int p) {
-        port = p;
-        RestAssured.baseURI = "http://localhost:" + port;
+        // Only fall back to localhost:port when no -Dtest.backend.url override was passed in
+        if (System.getProperty("test.backend.url") == null) {
+            baseUrl = "http://localhost:" + p;
+        }
+        RestAssured.baseURI = baseUrl;
     }
 
     @Given("I have a guest ID {string}")
