@@ -7,11 +7,7 @@ COPY . .
 RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
-# HF Spaces requires port 7860
-EXPOSE 7860
+# Render injects PORT dynamically — don't hardcode EXPOSE to a fixed port
+EXPOSE 10000
 
-# Override server port for HF Spaces + activate prod profile
-CMD ["java", \
-     "-Dspring.profiles.active=prod", \
-     "-Dserver.port=7860", \
-     "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]
+CMD ["sh", "-c", "java -Dspring.profiles.active=prod -Dserver.port=${PORT:-10000} -jar target/backend-0.0.1-SNAPSHOT.jar"]
